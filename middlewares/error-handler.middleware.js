@@ -1,26 +1,22 @@
-const HTTPStatus = require('statuses');
+const HTTPStatuses = require('statuses');
 
-const errorHandler = (err, req, res, next) => {
+function errorMiddleware (err, req, res, next) {
 
-  if (res.headerSent) {
-    return next(err);
+  /* Si jamais un autre handler d'erreur
+   a déjà envoyé la reponse */
+  if (res.headersSent) {
+    next(err);
   }
 
-  if(process.env.APP_ENV === "production") {
-    message = "Server Error";
-  } else {
-    message = err.toString();
-  }
-
+  /* On renvoie l'erreur parsée proprement */
   res
   .status(err.status)
   .json({
-    status: err.status,
-    message: HTTPStatus.STATUS_CODES[err.status],
+      statusCode: err.status,
+      message: HTTPStatuses.message[err.status]
   });
-
   res.end();
+
 }
 
-module.exports = errorHandler;
-
+module.exports = errorMiddleware;
